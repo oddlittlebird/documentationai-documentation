@@ -1,0 +1,237 @@
+---
+title: Quickstart
+description: Get Doc Detective running in minutes by connecting your docs and executing your first test. This guide walks through the fastest path from installation to results.
+---
+
+## Overview
+
+Doc Detective helps you verify that your documentation still matches reality. In this quickstart, you install the tool, connect a docs source, run a first test, and review the output so you can spot broken instructions early.
+
+<Callout kind="info">
+This is a starter kit template. Adapt the commands, URLs, and file paths to match your own documentation project.
+</Callout>
+
+## What you will do
+
+<Columns cols={2}>
+  <Card title="Install" icon="download" href="#install">
+    Set up the CLI and confirm it runs on your machine.
+  </Card>
+  <Card title="Connect docs" icon="book-open" href="#connect-your-docs">
+    Point Doc Detective at a docs site, repo, or local files.
+  </Card>
+  <Card title="Run a test" icon="play-circle" href="#run-your-first-test">
+    Execute your first check against a real instruction.
+  </Card>
+  <Card title="Read results" icon="bar-chart" href="#review-results">
+    Understand pass, fail, and failure details.
+  </Card>
+</Columns>
+
+## Install
+
+Start by installing the CLI with the package manager you already use. The commands below use a realistic package name and a standard workflow.
+
+<Steps>
+  <Step title="Install the CLI" icon="download">
+    Run the installer for your platform.
+
+    ````bash
+    npm install -g doc-detective
+    ````
+
+    If you prefer Python tooling, you can also install it in a virtual environment and run it from there.
+  </Step>
+  <Step title="Verify the version" icon="check-circle">
+    Confirm the command is available and the binary is on your path.
+
+    ````bash
+    doc-detective --version
+    ````
+
+    You should see a semantic version number such as `1.4.0`.
+  </Step>
+  <Step title="Check help output" icon="help-circle">
+    Review the available commands before you create your first test.
+
+    ````bash
+    doc-detective --help
+    ````
+  </Step>
+</Steps>
+
+## Connect your docs
+
+Doc Detective can validate content from a site, a repository, or local Markdown files. Choose the source that matches your workflow.
+
+<Tabs>
+  <Tab title="Docs site" icon="cloud">
+    Use a public or internal docs URL when you want to test what readers see in the browser.
+
+    ````yaml
+    source:
+      type: website
+      url: https://docs.example.com
+    ````
+  </Tab>
+  <Tab title="Git repository" icon="github">
+    Use repository files when you want checks to run against Markdown or MDX before publishing.
+
+    ````yaml
+    source:
+      type: repository
+      path: ./docs
+    ````
+  </Tab>
+  <Tab title="Local project" icon="terminal">
+    Use local files when you want quick feedback during authoring.
+
+    ````yaml
+    source:
+      type: local
+      path: ./content
+    ````
+  </Tab>
+</Tabs>
+
+### Suggested project file
+
+Create a small configuration file that tells the CLI what to validate.
+
+<CodeGroup tabs="YAML,JSON">
+  ````yaml
+  project:
+    name: marketing-docs
+    source:
+      type: website
+      url: https://docs.example.com
+    checks:
+      - type: command
+        instruction: "Run the onboarding command"
+        command: "doc-detective --help"
+  ````
+  ````json
+  {
+    "project": {
+      "name": "marketing-docs",
+      "source": {
+        "type": "website",
+        "url": "https://docs.example.com"
+      },
+      "checks": [
+        {
+          "type": "command",
+          "instruction": "Run the onboarding command",
+          "command": "doc-detective --help"
+        }
+      ]
+    }
+  }
+  ````
+</CodeGroup>
+
+## Run your first test
+
+Now that your source is configured, run a single check that verifies a real instruction. The example below tests a command that should always return help text.
+
+<CodeGroup tabs="bash,JavaScript,Python">
+  ````bash
+  doc-detective test --config ./doc-detective.yml
+  ````
+  ````javascript
+  import { execSync } from "node:child_process";
+
+  const output = execSync("doc-detective test --config ./doc-detective.yml", {
+    encoding: "utf8"
+  });
+
+  console.log(output);
+  ````
+  ````python
+  import subprocess
+
+  result = subprocess.run(
+      ["doc-detective", "test", "--config", "./doc-detective.yml"],
+      capture_output=True,
+      text=True,
+      check=True,
+  )
+
+  print(result.stdout)
+  ````
+</CodeGroup>
+
+A successful run usually prints a summary with the number of checks executed, the number of passes, and the number of failures. If your test fails, Doc Detective shows the exact step that did not match the expected result.
+
+## Review results
+
+When a check fails, focus on the failure output first. It usually tells you whether the problem is a missing command, a changed page title, or an instruction that no longer matches the product.
+
+| Signal | What it means | What you should do |
+|--------|---------------|--------------------|
+| Pass | The instruction matched the expected result | Keep the check as a regression guard |
+| Fail | The observed result differed from the expected result | Update the docs or the test |
+| Error | The test could not run successfully | Check the environment or configuration |
+
+<Callout kind="tip">
+If a step depends on a browser session or authenticated page, make sure the test environment has access before you troubleshoot the assertion itself.
+</Callout>
+
+## Verify a sample instruction
+
+A good quickstart ends with a simple command that readers can copy and run. This example checks that your setup can validate a command-based instruction end to end.
+
+<Steps>
+  <Step title="Create the check" icon="settings">
+    Add a test that uses a realistic command and expected output.
+
+    ````yaml
+    checks:
+      - name: help-command
+        type: command
+        command: "doc-detective --help"
+        expect:
+          contains: "Usage"
+    ````
+  </Step>
+  <Step title="Run the check" icon="play-circle">
+    Execute the suite again and confirm the result is green.
+
+    ````bash
+    doc-detective test --config ./doc-detective.yml
+    ````
+  </Step>
+  <Step title="Inspect the report" icon="bar-chart">
+    Open the report and review the failing line if the instruction does not match.
+
+    ````text
+    Check: help-command
+    Result: fail
+    Reason: expected output to contain "Usage"
+    Actual: command returned no output
+    ````
+  </Step>
+</Steps>
+
+## Next steps
+
+Once your first test works, expand the suite to cover setup steps, navigation links, and any commands your users rely on most.
+
+<Columns cols={2}>
+  <Card title="Add more checks" icon="check-circle" href="#review-results" horizontal>
+    Grow from one command to a full documentation quality gate.
+  </Card>
+  <Card title="Tune your configuration" icon="settings" href="#connect-your-docs" horizontal>
+    Adjust source settings, timeouts, and expectations for your project.
+  </Card>
+</Columns>
+
+<Expandable title="Troubleshooting tips" default-open="false">
+  
+If the CLI is not found, reinstall it globally or confirm your package manager added the binary to your path.
+
+If a test fails unexpectedly, compare the live page or command output against the expected text in your config.
+
+If a docs site requires authentication, use a session that can access the protected page before running the suite.
+
+</Expandable>

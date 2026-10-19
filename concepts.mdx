@@ -1,0 +1,207 @@
+---
+title: Core Concepts
+description: Understand the building blocks behind Doc Detective so you can model and organize tests effectively. This page explains the product’s terminology and execution model.
+---
+
+## Overview
+
+Doc Detective helps you verify that your documentation stays accurate as it changes. It does that by turning pages, tutorials, and API references into testable content that you can run in a repeatable way.
+
+This page introduces the core vocabulary you will use when building checks: what counts as testable content, how instructions become executable steps, how assertions define success, and how runners collect results from different environments.
+
+<Callout kind="info">
+
+This page is a starter kit template. Adapt the examples to match your docs structure, publishing workflow, and validation rules.
+
+</Callout>
+
+## Core building blocks
+
+The concepts below form the foundation of a documentation test suite. Use them together so your checks stay readable, reusable, and easy to maintain.
+
+<Columns cols={3}>
+  <Card title="Testable Content" icon="book-open" href="#testable-content">
+    Identify the doc sections, examples, and callouts that should be verified.
+  </Card>
+  <Card title="Execution Model" icon="rocket" href="#execution-model">
+    Understand how runners execute steps in a controlled environment.
+  </Card>
+  <Card title="Results" icon="bar-chart" href="#results-and-pass-criteria">
+    Review what passed, what failed, and why a check needs attention.
+  </Card>
+</Columns>
+
+### Testable content
+
+Testable content is any page element you expect a reader to rely on. That usually includes installation commands, setup instructions, sample responses, and configuration snippets. You should prioritize content that is user-facing and likely to change over time.
+
+A strong test suite focuses on high-value paths first. For example, a setup guide might verify that the install command still works, that the next step is still correct, and that the final output matches the documented result.
+
+### Instructions, steps, and assertions
+
+Instructions describe what the reader should do. Steps break those instructions into executable actions. Assertions confirm that the observed result matches your expectation. In practice, that means you can validate not only that a command ran, but also that it produced the right output.
+
+A simple mental model is:
+
+- instructions tell you what to try
+- steps define the ordered actions
+- assertions decide whether the result is acceptable
+
+### Execution environments and runners
+
+An execution environment is the context where a test runs. A runner is the tool or process that performs the steps inside that environment. You might use one runner for local validation and another for CI, but both should follow the same documented behavior.
+
+<CodeGroup tabs="TypeScript,Bash">
+  ```typescript
+  type Step = {
+    title: string;
+    command: string;
+    expect: string;
+  };
+
+  const quickstartCheck: Step[] = [
+    {
+      title: "Install dependencies",
+      command: "npm install",
+      expect: "added"
+    },
+    {
+      title: "Start the app",
+      command: "npm run dev",
+      expect: "ready"
+    }
+  ];
+  ```
+
+  ```bash
+  npm install
+  npm run dev
+  ```
+</CodeGroup>
+
+## How Doc Detective models documentation
+
+The product works best when you organize your checks around the structure of your content. If a guide has a setup section, a verification section, and a troubleshooting section, you can model each one separately and keep the assertions focused.
+
+<Tabs>
+  <Tab title="Markdown docs" icon="book-open">
+
+    Use this format when your source content lives in markdown pages. You can validate headings, code fences, lists, and inline notes without changing the authoring workflow.
+
+    ```markdown
+    ## Install
+
+    Run the installer, then confirm that the CLI responds.
+
+    ```bash
+    twu-doc-detective --version
+    ```
+    ```
+
+  </Tab>
+  <Tab title="API docs" icon="code">
+
+    Use this format when your source content includes request and response examples. You can verify parameter names, required fields, and sample payloads.
+
+    ```json
+    {
+      "name": "TWU Doc Detective",
+      "status": "ready"
+    }
+    ```
+
+  </Tab>
+  <Tab title="Tutorials" icon="settings">
+
+    Use this format when your source content is procedural. You can verify that each step appears in the right order and that the final outcome matches the documented result.
+
+    ```bash
+    echo "Documentation check passed"
+    ```
+
+  </Tab>
+</Tabs>
+
+## Supported source patterns
+
+You can apply Doc Detective to many documentation formats, as long as the content is stable enough to validate. Typical sources include markdown pages, site builds, CLI output, and structured examples that appear in your docs.
+
+| Source pattern | What you validate |
+| --- | --- |
+| Markdown pages | Headings, prose, lists, and code blocks |
+| API references | Endpoints, parameters, and example payloads |
+| Tutorials | Step order, commands, and success criteria |
+| Generated output | Rendered text, sample responses, and status messages |
+
+## Results and pass criteria
+
+A run should give you enough detail to fix problems quickly. Successful checks confirm that the observed content matches the expected content. Failed checks should point you to the exact step, assertion, or source location that needs attention.
+
+Use clear pass criteria so your tests stay predictable. For example, prefer specific text checks over vague conditions, and prefer one assertion per meaningful outcome.
+
+<Expandable title="What should you assert?" default-open="true">
+
+Assert on the parts of the page that matter to users:
+
+- command output
+- required headings
+- sample JSON fields
+- warning text
+- links to the next step
+
+</Expandable>
+
+<Expandable title="How should you handle failures?" default-open="false">
+
+When a failure occurs, inspect the source content, re-run the affected test, and confirm whether the change was intentional. If the docs changed on purpose, update the expected result so the test matches the new behavior.
+
+</Expandable>
+
+## Recommended workflow
+
+<Steps>
+  <Step title="Identify the content" icon="search">
+    Choose the page section, example, or workflow you want to protect.
+  </Step>
+  <Step title="Define the steps" icon="list-check">
+    Break the documentation into ordered actions that a runner can execute.
+  </Step>
+  <Step title="Add assertions" icon="check-circle">
+    Define the expected text, output, or structure for each meaningful result.
+  </Step>
+  <Step title="Run in your environment" icon="rocket">
+    Execute the test in a development or continuous integration environment.
+  </Step>
+  <Step title="Review and refine" icon="shield">
+    Fix failures, then tighten the checks so they stay useful as the docs evolve.
+  </Step>
+</Steps>
+
+## Practical example
+
+The example below shows a small documentation check for a setup page. It verifies that the command completes and that the expected success message appears.
+
+```yaml
+name: quickstart-smoke-test
+source: ./docs/get-started/introduction.md
+steps:
+  - run: npm install
+    expect: "up to date"
+  - run: npm run build
+    expect: "build complete"
+assertions:
+  - text: "Get started in minutes"
+  - text: "Next steps"
+```
+
+<Callout kind="tip">
+
+Keep your assertions close to the user experience. If a reader needs the heading, command, or output to continue, your test should cover it.
+
+</Callout>
+
+## Summary
+
+If you keep your model simple, your tests stay maintainable. Start with the most important documentation paths, define clear steps, and make pass criteria specific enough to catch real regressions without adding noise.
+
+The result is a documentation workflow that helps you keep your docs accurate and up-to-date with Doc Detective.

@@ -1,0 +1,160 @@
+---
+title: Changelog
+description: Review recent Doc Detective updates, improvements, and fixes. This page helps users track new capabilities and understand changes that may affect their workflows.
+---
+
+## Overview
+
+This changelog summarizes recent updates for TWU Doc Detective, the documentation quality platform for Technical Writing Uncensored. Use it to track new capabilities, reliability work, and any changes that may affect your workflow.
+
+<Callout kind="info">
+
+Keep your docs accurate and up-to-date with Doc Detective. This starter kit page is designed to be customized for your release process and version history.
+
+</Callout>
+
+## Recent Releases
+
+<Update label="2026-10-15" description="v2.4.0" tags={["feature", "improvement"]}>
+
+## New Features
+
+- Added support for scheduled documentation checks so you can run validation before each release.
+- Introduced a clearer report summary that highlights broken links, missing fields, and outdated examples.
+- Expanded runner support to make it easier to validate docs in local and CI environments.
+
+## Improvements
+
+- Reduced noise in pass/fail summaries by grouping related findings.
+- Improved scan performance for large documentation sets.
+- Refined file matching so markdown content and generated pages are easier to identify.
+
+## Bug Fixes
+
+- Fixed an issue where some relative links were reported incorrectly.
+- Resolved a retry problem that could delay failed checks from appearing in the dashboard.
+
+</Update>
+
+<Update label="2026-08-28" description="v2.3.1" tags={["bugfix", "improvement"]}>
+
+## Improvements
+
+- Improved stability when validating content with embedded code samples.
+- Made output more consistent across repeated runs so teams can compare results more easily.
+- Updated internal parsing to handle longer pages without interruption.
+
+## Bug Fixes
+
+- Fixed a formatting issue that could hide inline code markers in summaries.
+- Resolved an edge case where empty sections were flagged inconsistently.
+- Corrected status reporting for checks that timed out after network delays.
+
+</Update>
+
+<Update label="2026-06-11" description="v2.3.0" tags={["feature", "breaking"]}>
+
+## New Features
+
+- Added support for a new documentation runner configuration format.
+- Introduced richer annotations for detected issues so you can triage problems faster.
+- Added export options for sharing review results with your team.
+
+## Breaking Changes
+
+- Runner configuration keys were renamed to match the new schema.
+- Legacy report fields were removed from the default export.
+- Existing automation scripts may need to be updated before upgrading.
+
+## Migration Notes
+
+- Review your configuration file before deploying the new version.
+- Update any scripts that reference the old field names.
+- Run a full validation pass in a staging environment before rolling out to production.
+
+</Update>
+
+## Release Highlights
+
+<Columns cols={3}>
+  <Card title="Feature Additions" icon="zap" href="#recent-releases">
+    
+Track the newest capabilities and scan workflow improvements in one place.
+
+  </Card>
+  <Card title="Reliability" icon="shield" href="#recent-releases">
+    
+Review bug fixes that improve consistency across documentation checks.
+
+  </Card>
+  <Card title="Migration Notes" icon="book-open" href="#recent-releases">
+    
+See version changes that may require updates to your config or automation.
+
+  </Card>
+</Columns>
+
+## How to Review an Update
+
+<Steps>
+  <Step title="Read the summary" icon="info">
+    
+Start with the release title and tags so you know whether the change affects features, improvements, or migration work.
+
+  </Step>
+  <Step title="Scan the sections" icon="search">
+    
+Look for New Features, Improvements, Bug Fixes, and Breaking Changes to understand the full impact.
+
+  </Step>
+  <Step title="Check your workflow" icon="settings">
+    
+Compare the release notes with your current setup, especially if you rely on CI jobs, runners, or custom report parsing.
+
+  </Step>
+</Steps>
+
+## Supported Change Types
+
+<Tabs>
+  <Tab title="Feature" icon="rocket">
+    
+Use this category for new capabilities, expanded validation coverage, or workflow enhancements that add value to your team.
+
+  </Tab>
+  <Tab title="Improvement" icon="bar-chart">
+    
+Use this category for performance work, clearer output, better stability, or usability refinements.
+
+  </Tab>
+  <Tab title="Bug Fix" icon="check-circle">
+    
+Use this category for reliability fixes, parsing corrections, and other behavior that restores expected results.
+
+  </Tab>
+  <Tab title="Breaking Change" icon="alert-triangle">
+    
+Use this category when an update requires configuration changes, migration steps, or script updates.
+
+  </Tab>
+</Tabs>
+
+## Notes for Maintainers
+
+<Callout kind="tip">
+
+When you add a new entry, keep the date in `YYYY-MM-DD` format, use a semantic version in the description, and describe the user impact clearly.
+
+</Callout>
+
+<Expandable title="What should you include in each release note?" default-open="false">
+
+Include the most important changes first, then list supporting details. Focus on what changed, why it matters, and what users need to do next.
+
+</Expandable>
+
+<Expandable title="How do you handle migration guidance?" default-open="false">
+
+Add a short Migration Notes section when a release changes configuration keys, report fields, supported formats, or runner behavior.
+
+</Expandable>

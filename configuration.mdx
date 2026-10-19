@@ -1,0 +1,251 @@
+---
+title: Configuration
+description: Learn how to tailor TWU Doc Detective to your documentation stack and team workflow. This page covers settings for execution, sources, and automation behavior.
+---
+
+## Overview
+
+Configuration is where you adapt TWU Doc Detective to your docs stack, repo layout, and release workflow. You can keep the defaults for a quick start, then tighten the setup as your team adds more sources, environments, or automation.
+
+This starter kit shows common patterns for local runs, CI checks, and secret management. Replace the sample values with your own project paths, browser settings, and environment-specific credentials.
+
+<Callout kind="info">
+
+Use this page as a template. Keep the structure, but swap in your repository paths, command names, and runtime flags.
+
+</Callout>
+
+## Core configuration areas
+
+<Columns cols={3}>
+  <Card title="Sources" icon="book-open" href="#source-mapping">
+    
+Map docs to code, APIs, and assets so checks run against the right files.
+
+  </Card>
+  <Card title="Runtime" icon="terminal" href="#runtime-options">
+    
+Tune browser or CLI execution for local development and CI pipelines.
+
+  </Card>
+  <Card title="Automation" icon="settings" href="#ci-friendly-patterns">
+    
+Schedule checks, gate pull requests, and keep documentation validation consistent.
+
+  </Card>
+</Columns>
+
+## Configuration files and defaults
+
+Most teams start with a single config file at the repository root. You can name it to match your workflow, but keep it version-controlled so the same settings run everywhere.
+
+A typical configuration includes:
+
+- Project metadata
+- Source paths and glob patterns
+- Execution mode
+- Report output location
+- Secret handling rules
+
+```yaml
+project: twu-doc-detective
+sources:
+  docs:
+    - docs/**/*.mdx
+    - docs/**/*.md
+  code:
+    - src/**/*.ts
+    - src/**/*.tsx
+automation:
+  failOnError: true
+  outputDir: .doc-detective/reports
+runtime:
+  browser: chromium
+  headless: true
+```
+
+If your team needs different defaults for local and CI runs, keep the base file minimal and override specific values with environment variables.
+
+## Environment variables and secrets
+
+Use environment variables for values that should not live in source control. That includes tokens, private endpoints, and environment-specific toggles. Keep secrets out of the repository and inject them at runtime.
+
+<CodeGroup tabs="YAML,Shell,JSON">
+  ```yaml
+  # config.yml
+  api:
+    baseUrl: https://api.example.com
+    token: ${DOC_DETECTIVE_TOKEN}
+  ```
+  ```bash
+  export DOC_DETECTIVE_TOKEN="YOUR_TOKEN"
+  export DOC_DETECTIVE_ENV="staging"
+  ```
+  ```json
+  {
+    "api": {
+      "baseUrl": "https://api.example.com",
+      "token": "${DOC_DETECTIVE_TOKEN}"
+    }
+  }
+  ```
+</CodeGroup>
+
+<Callout kind="alert">
+
+Never commit real secrets to your repository. Use placeholder values such as `YOUR_TOKEN` during examples and store production credentials in your CI secret manager.
+
+</Callout>
+
+## Source mapping and path settings
+
+Source mapping tells Doc Detective where to look for documentation and which files belong to a given check. Good mapping prevents false positives and makes reports easier to act on.
+
+### Recommended mapping pattern
+
+<Steps>
+  <Step title="Identify your documentation roots" icon="folder">
+    
+List the directories that contain your published docs, examples, and reference content.
+
+  </Step>
+  <Step title="Match each source to a glob pattern" icon="list">
+    
+Use patterns like `docs/**/*.mdx` or `guides/**/*.md` so the checker can expand files consistently.
+
+  </Step>
+  <Step title="Exclude generated output" icon="x-circle">
+    
+Skip build artifacts, temporary files, and cached reports so they do not pollute the run.
+
+  </Step>
+</Steps>
+
+```yaml
+sources:
+  docs:
+    include:
+      - docs/**/*.mdx
+      - docs/**/*.md
+    exclude:
+      - docs/.cache/**
+      - docs/build/**
+  examples:
+    include:
+      - examples/**/*.mdx
+```
+
+If your content lives in multiple packages, keep each package path explicit instead of relying on a broad repository-wide wildcard. That makes failures easier to trace.
+
+## Runtime options
+
+Runtime settings control how Doc Detective executes checks. You usually adjust these when your environment has browser dependencies, slower CI machines, or custom command wrappers.
+
+<Tabs>
+  <Tab title="Local development" icon="terminal">
+    
+Use a fast, readable setup for authoring and review.
+
+```yaml
+runtime:
+  browser: chromium
+  headless: false
+  timeoutMs: 30000
+```
+
+  </Tab>
+  <Tab title="CI pipeline" icon="rocket">
+    
+Use a repeatable setup that favors speed and stable output.
+
+```yaml
+runtime:
+  browser: chromium
+  headless: true
+  timeoutMs: 60000
+```
+
+  </Tab>
+  <Tab title="Docker" icon="package">
+    
+Pin the browser and runtime behavior so container runs match local expectations.
+
+```yaml
+runtime:
+  browser: chromium
+  headless: true
+  containerized: true
+```
+
+  </Tab>
+</Tabs>
+
+You can also control behavior with command-line flags when a one-off run needs a temporary override. Keep those overrides small so your committed config remains the source of truth.
+
+## CI-friendly patterns
+
+CI setup works best when it is deterministic, fast, and easy to fail on meaningful errors. The goal is to validate docs before they reach users, not after a release goes out.
+
+<Board title="CI rollout checklist">
+  <BoardColumn title="Planned" color="0" icon="circle-dot">
+    <BoardCard title="Add config file" description="Commit the shared base configuration." icon="file-code" dueDate="2026-01-15" author="Docs Team" />
+    <BoardCard title="Set secret variables" description="Store tokens in your CI secret manager." icon="shield" dueDate="2026-01-16" author="Platform Team" />
+  </BoardColumn>
+  <BoardColumn title="In Progress" color="1" icon="loader">
+    <BoardCard title="Wire up validation job" description="Run checks on pull requests and main." icon="workflow" author="Build Team" />
+  </BoardColumn>
+  <BoardColumn title="Done" color="2" icon="check-circle">
+    <BoardCard title="Choose report output path" description="Save artifacts for review and triage." icon="folder-check" createdAt="2026-01-08" />
+  </BoardColumn>
+</Board>
+
+A practical CI setup usually includes:
+
+1. A locked config file committed to the repository
+2. Environment variables injected by your CI provider
+3. A single command that fails the build on validation errors
+4. Saved artifacts for reports and screenshots
+
+```bash
+doc-detective run --config ./doc-detective.config.yml --output ./artifacts/doc-checks
+```
+
+## Advanced options
+
+<ExpandableGroup>
+  <Expandable title="Override browser settings" default-open="true" title-type="h3">
+    
+Use this when a specific environment needs a different browser, viewport, or execution timeout. Keep the override in CI variables or a separate profile file rather than editing the shared default.
+
+  </Expandable>
+  <Expandable title="Use multiple source roots" default-open="false" title-type="h3">
+    
+Split large documentation sets into smaller roots when you maintain separate product areas. This helps you isolate failures and assign ownership more cleanly.
+
+  </Expandable>
+  <Expandable title="Tune failure behavior" default-open="false" title-type="h3">
+    
+If you want gradual adoption, start by warning on errors in non-blocking jobs. Once the team trusts the signal, switch the same rule set to block merges.
+
+  </Expandable>
+</ExpandableGroup>
+
+## Troubleshooting
+
+If your run fails unexpectedly, check the following first:
+
+- The config file path is correct
+- Environment variables are available in the process
+- Source glob patterns match real files
+- Browser dependencies are installed on the runner
+- Output directories exist or can be created
+
+<Callout kind="tip">
+
+Start with one docs directory and one CI job. Once that works, expand the source map and automation rules in small steps.
+
+</Callout>
+
+## Next steps
+
+After you confirm the basics, document your team standard in the repository and share one example config with contributors. That gives everyone a predictable starting point and reduces configuration drift over time.
